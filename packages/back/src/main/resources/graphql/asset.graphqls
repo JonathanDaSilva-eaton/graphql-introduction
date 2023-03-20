@@ -1,0 +1,22 @@
+interface Asset {
+  id: ID!
+  name: String!
+}
+
+type Pdu implements Asset {
+  id: ID!
+  name: String!
+  outletCount: Int!
+}
+
+type Ups implements Asset {
+  id: ID!
+  name: String!
+  batteryPercentage: Int!
+}
+
+type Query {
+  assets: [Asset]!
+
+  asset(id: ID!): Asset!
+}
