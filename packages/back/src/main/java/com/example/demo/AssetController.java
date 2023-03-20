@@ -1,30 +1,48 @@
 package com.example.demo;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.graphql.data.method.annotation.SchemaMapping;
 import org.springframework.stereotype.Controller;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.graphql.data.method.annotation.Argument;
-import org.springframework.graphql.data.method.annotation.SchemaMapping;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Controller
 public class AssetController {
+    @Autowired
+    AssetService assetService;
+    @Autowired
+    LocationService locationService;
 
     @QueryMapping
     public List<Asset> assets() {
-        Asset asset1 = Pdu.builder().id("1").name("test1").outletCount(45).build();
-        Asset asset2 = Pdu.builder().id("2").name("test2").outletCount(45).build();
-        Asset asset3 = Ups.builder().id("3").name("test3").batteryPercentage(40).build();
-        List<Asset> array = new ArrayList<>();
-        array.add(asset1);
-        array.add(asset2);
-        array.add(asset3);
-        return array;
+        return assetService.getAll();
     }
 
     @QueryMapping
     public Asset asset(@Argument String id) {
-        return Pdu.builder().id(id).name("test"+id).outletCount(45).build();
+        return assetService.getById(id);
     }
+
+    @QueryMapping
+    public Datacenter datacenter() {
+        return locationService.getDatacenter();
+    }
+
+    @SchemaMapping(typeName="Datacenter", field="rooms")
+    public List<Room> datacenterRooms() {
+        return locationService.getRooms();
+    }
+
+    @SchemaMapping(typeName="Room", field="rows")
+    public List<Row> roomRows(Room room) {
+        return locationService.getRowForRoomId(room.id);
+    }
+
+    @SchemaMapping(typeName="Row", field="racks")
+    public List<Rack> rowRacks(Row row) {
+        return locationService.getRackForRowId(row.id);
+    }
+
 }

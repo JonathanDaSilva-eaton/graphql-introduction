@@ -1,6 +1,6 @@
 interface Asset {
   id: ID!
-  name: String!
+  name: String
 }
 
 type Pdu implements Asset {
@@ -17,6 +17,31 @@ type Ups implements Asset {
 
 type Query {
   assets: [Asset]!
+  datacenter: Datacenter!
 
   asset(id: ID!): Asset!
+}
+
+type Datacenter {
+  id: ID!
+  name: String!
+  rooms: [Room]!
+}
+
+type Room {
+  id: ID!
+  name: String!
+  rows: [Row]!
+}
+
+type Row {
+  id: ID!
+  name: String!
+  racks: [Rack]!
+}
+
+type Rack {
+  id: ID!
+  name: String!
+  assets: [Asset]!
 }
