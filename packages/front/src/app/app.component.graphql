@@ -1,0 +1,34 @@
+query GetDatacenter {
+  datacenter {
+    id
+    name
+    rooms {
+      id
+      name
+      rows {
+        id
+        name
+        racks {
+          id
+          name
+          assets {
+            id
+            name
+            ... on Ups {
+              batteryPercentage
+            }
+            ... on Pdu {
+              outletCount
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+mutation CreateAsset($name: String!, $parentId: String!) {
+  createAsset(name: $name, parentId: $parentId) {
+    id
+  }
+}

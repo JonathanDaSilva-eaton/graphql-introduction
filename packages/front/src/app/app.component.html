@@ -1,0 +1,40 @@
+<div *ngIf="datacenter$ | async; let datacenter">
+  <h1>{{ datacenter.name }}</h1>
+
+  <mat-accordion>
+    <mat-expansion-panel *ngFor="let room of datacenter.rooms">
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          {{ room.name }}
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+      <mat-accordion>
+        <mat-expansion-panel *ngFor="let row of room.rows">
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              {{ row.name }}
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+          <mat-accordion>
+            <mat-expansion-panel *ngFor="let rack of row.racks">
+              <mat-expansion-panel-header>
+                <mat-panel-title>
+                  {{ rack.name }}
+                </mat-panel-title>
+              </mat-expansion-panel-header>
+              <mat-chip-listbox aria-label="Fish selection">
+              <mat-chip-option
+                *ngFor="let asset of rack.assets"
+                [color]="asset.__typename === 'Ups' ? 'primary' : 'accent'"
+                selected
+              >{{ asset.name }}</mat-chip-option>
+              </mat-chip-listbox>
+
+              <input type="text" (keydown.enter)="addAsset($event, rack)">
+            </mat-expansion-panel>
+          </mat-accordion>
+        </mat-expansion-panel>
+      </mat-accordion>
+    </mat-expansion-panel>
+  </mat-accordion>
+</div>
