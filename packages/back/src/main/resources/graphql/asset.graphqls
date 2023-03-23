@@ -1,47 +1,93 @@
+type Query {
+  # Returns the list of the assets in the current Datacenter
+  assets: [Asset]!
+  # Returns the current Datacenter
+  datacenter: Datacenter!
+  # Returns all the list of locations in the current Datacenter
+  locations: [Location]!
+
+  rooms: [Room]!
+  rows: [Row]!
+  racks: [Rack]!
+
+  asset(id: ID!): Asset!
+  room(id: ID!): Room!
+  row(id: ID!): Row!
+  rack(id: ID!): Rack!
+}
+
+input AssetInput {
+  name: String!
+  parentId: String!
+}
+
+type Mutation {
+  createAsset(name: String!, parentId: String!): Asset!
+  createAssets(assets: [AssetInput!]!): [Asset!]!
+}
+
 interface Asset {
   id: ID!
-  name: String
+  name: String!
+  parent: Location!
 }
+
+union Location = Datacenter|Room|Row|Rack
 
 type Pdu implements Asset {
   id: ID!
   name: String!
   outletCount: Int!
+  outlets: [PduOutlet!]!
+  parent: Location!
+}
+
+enum PduOutletType {
+  C13
+  C19
+  C39
+  OTHER
+}
+
+type PduOutlet {
+  id: ID!
+  label: String
+  plugType: PduOutletType!
 }
 
 type Ups implements Asset {
   id: ID!
   name: String!
   batteryPercentage: Int!
+  parent: Location!
 }
 
-type Query {
-  assets: [Asset]!
-  datacenter: Datacenter!
-
-  asset(id: ID!): Asset!
-}
+scalar DateTime
 
 type Datacenter {
   id: ID!
   name: String!
   rooms: [Room]!
+  createdAt: DateTime!
 }
 
 type Room {
   id: ID!
   name: String!
   rows: [Row]!
+  parent: Datacenter!
 }
 
 type Row {
   id: ID!
   name: String!
   racks: [Rack]!
+  parent: Datacenter!
 }
 
 type Rack {
   id: ID!
   name: String!
   assets: [Asset]!
+  parent: Datacenter!
 }

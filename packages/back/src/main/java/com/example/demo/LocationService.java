@@ -2,35 +2,30 @@ package com.example.demo;
 
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 @Component
 public class LocationService {
-    Datacenter datacenter = Datacenter.builder().id("1").name("datacanter").build();
+    Datacenter datacenter = Datacenter.builder().id("dc-01").name("datacenter").createAt(LocalDate.now()).build();
     ArrayList<Room> rooms = new ArrayList<>();
     ArrayList<Row> rows = new ArrayList<>();
     ArrayList<Rack> racks = new ArrayList<>();
 
     public LocationService() {
-        rooms.add(Room.builder().id("1").name("Room-1").parentId("1").build());
-        rooms.add(Room.builder().id("2").name("Room-1").parentId("1").build());
+        rooms.add(Room.builder().id("room-01").name("Room-1").parentId("dc-01").build());
+        rooms.add(Room.builder().id("room-02").name("Room-1").parentId("dc-01").build());
 
-        rows.add(Row.builder().id("1").name("Row-1").parentId("1").build());
-        rows.add(Row.builder().id("2").name("Row-2").parentId("1").build());
-        rows.add(Row.builder().id("3").name("Row-3").parentId("2").build());
-        rows.add(Row.builder().id("4").name("Row-4").parentId("2").build());
-        rows.add(Row.builder().id("5").name("Row-5").parentId("1").build());
+        rows.add(Row.builder().id("row-01").name("Row-1").parentId("room-01").build());
+        rows.add(Row.builder().id("row-02").name("Row-2").parentId("room-01").build());
+        rows.add(Row.builder().id("row-03").name("Row-3").parentId("room-02").build());
 
-        racks.add(Rack.builder().id("1").name("Rack-1").parentId("1").build());
-        racks.add(Rack.builder().id("2").name("Rack-2").parentId("2").build());
-        racks.add(Rack.builder().id("3").name("Rack-3").parentId("3").build());
-        racks.add(Rack.builder().id("4").name("Rack-4").parentId("4").build());
-        racks.add(Rack.builder().id("5").name("Rack-5").parentId("5").build());
-        racks.add(Rack.builder().id("6").name("Rack-6").parentId("6").build());
-        racks.add(Rack.builder().id("7").name("Rack-7").parentId("7").build());
-        racks.add(Rack.builder().id("8").name("Rack-8").parentId("8").build());
-        racks.add(Rack.builder().id("9").name("Rack-9").parentId("9").build());
+        racks.add(Rack.builder().id("rack-01").name("Rack-1").parentId("row-01").build());
+        racks.add(Rack.builder().id("rack-02").name("Rack-2").parentId("row-01").build());
+        racks.add(Rack.builder().id("rack-03").name("Rack-3").parentId("row-01").build());
+        racks.add(Rack.builder().id("rack-04").name("Rack-4").parentId("row-02").build());
+        racks.add(Rack.builder().id("rack-05").name("Rack-5").parentId("row-02").build());
     }
 
     public Datacenter getDatacenter() {
@@ -39,6 +34,26 @@ public class LocationService {
 
     public List<Room> getRooms() {
         return rooms;
+    }
+
+    public Room getRoom(String id) {
+        return rooms.stream().filter(room -> room.id.equals(id)).findFirst().orElseThrow(RoomNotFoundException::new);
+    }
+
+    public List<Row> getRows() {
+        return rows;
+    }
+
+    public Row getRow(String id) {
+        return rows.stream().filter(row -> row.id.equals(id)).findFirst().orElseThrow(RowNotFoundException::new);
+    }
+
+    public List<Rack> getRacks() {
+        return racks;
+    }
+
+    public Rack getRack(String id) {
+        return racks.stream().filter(rack -> rack.id.equals(id)).findFirst().orElseThrow(RackNotFoundException::new);
     }
 
     public List<Row> getRowForRoomId(String id) {

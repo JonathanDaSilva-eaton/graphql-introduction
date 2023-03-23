@@ -18,6 +18,7 @@ export type Scalars = {
 export type Asset = {
   id: Scalars['ID'];
   name: Scalars['String'];
+  parent: Location;
 };
 
 export type Datacenter = {
@@ -26,6 +27,8 @@ export type Datacenter = {
   name: Scalars['String'];
   rooms: Array<Maybe<Room>>;
 };
+
+export type Location = Datacenter | Rack | Room | Row;
 
 export type Mutation = {
   __typename?: 'Mutation';
@@ -43,17 +46,55 @@ export type Pdu = Asset & {
   id: Scalars['ID'];
   name: Scalars['String'];
   outletCount: Scalars['Int'];
+  outlets: Array<PduOutlet>;
+  parent: Location;
 };
+
+export type PduOutlet = {
+  __typename?: 'PduOutlet';
+  id: Scalars['ID'];
+  label?: Maybe<Scalars['String']>;
+  plugType: PduOutletType;
+};
+
+export enum PduOutletType {
+  C13 = 'C13',
+  C19 = 'C19',
+  C39 = 'C39',
+  Other = 'OTHER'
+}
 
 export type Query = {
   __typename?: 'Query';
   asset: Asset;
   assets: Array<Maybe<Asset>>;
   datacenter: Datacenter;
+  locations: Array<Maybe<Location>>;
+  rack: Rack;
+  racks: Array<Maybe<Rack>>;
+  room: Room;
+  rooms: Array<Maybe<Room>>;
+  row: Row;
+  rows: Array<Maybe<Row>>;
 };
 
 
 export type QueryAssetArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type QueryRackArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type QueryRoomArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type QueryRowArgs = {
   id: Scalars['ID'];
 };
 
@@ -62,12 +103,14 @@ export type Rack = {
   assets: Array<Maybe<Asset>>;
   id: Scalars['ID'];
   name: Scalars['String'];
+  parent: Datacenter;
 };
 
 export type Room = {
   __typename?: 'Room';
   id: Scalars['ID'];
   name: Scalars['String'];
+  parent: Datacenter;
   rows: Array<Maybe<Row>>;
 };
 
@@ -75,6 +118,7 @@ export type Row = {
   __typename?: 'Row';
   id: Scalars['ID'];
   name: Scalars['String'];
+  parent: Datacenter;
   racks: Array<Maybe<Rack>>;
 };
 
@@ -89,6 +133,7 @@ export type Ups = Asset & {
   batteryPercentage: Scalars['Int'];
   id: Scalars['ID'];
   name: Scalars['String'];
+  parent: Location;
 };
 
 export type GetDatacenterQueryVariables = Exact<{ [key: string]: never; }>;
@@ -102,7 +147,7 @@ export type CreateAssetMutationVariables = Exact<{
 }>;
 
 
-export type CreateAssetMutation = { __typename?: 'Mutation', createAsset: { __typename?: 'Pdu', id: string } | { __typename?: 'Ups', id: string } };
+export type CreateAssetMutation = { __typename?: 'Mutation', createAsset: { __typename?: 'Pdu', id: string, name: string, parent: { __typename?: 'Datacenter' } | { __typename?: 'Rack', id: string, assets: Array<{ __typename?: 'Pdu', id: string } | { __typename?: 'Ups', id: string } | null> } | { __typename?: 'Room' } | { __typename?: 'Row' } } | { __typename?: 'Ups', id: string, name: string, parent: { __typename?: 'Datacenter' } | { __typename?: 'Rack', id: string, assets: Array<{ __typename?: 'Pdu', id: string } | { __typename?: 'Ups', id: string } | null> } | { __typename?: 'Room' } | { __typename?: 'Row' } } };
 
 export const GetDatacenterDocument = gql`
     query GetDatacenter {
@@ -149,6 +194,15 @@ export const CreateAssetDocument = gql`
     mutation CreateAsset($name: String!, $parentId: String!) {
   createAsset(name: $name, parentId: $parentId) {
     id
+    name
+    parent {
+      ... on Rack {
+        id
+        assets {
+          id
+        }
+      }
+    }
   }
 }
     `;

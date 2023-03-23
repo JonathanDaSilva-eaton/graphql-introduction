@@ -6,7 +6,8 @@ import lombok.experimental.SuperBuilder;
 @Data
 @ToString
 @SuperBuilder
-public abstract class AbstractAsset implements Asset {
+public abstract class AbstractAsset {
     private String id;
     private String name;
+    private String parentId;
 }

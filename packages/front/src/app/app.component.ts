@@ -1,11 +1,11 @@
 import { Component } from '@angular/core';
-import { map, Observable } from "rxjs";
+import { firstValueFrom, map, Observable } from "rxjs";
 import {
   CreateAssetGQL,
   GetDatacenterGQL,
   GetDatacenterQuery,
   GetDatacenterQueryVariables,
-  Rack
+  Rack,
 } from "../generated/graphql";
 import { QueryRef } from "apollo-angular";
 
@@ -23,18 +23,25 @@ export class AppComponent {
     private createAsset: CreateAssetGQL,
   ) {
 
-    this.assetQueryRef = this.getAssets.watch();
+    this.assetQueryRef = this.getAssets.watch({}, {
+      fetchPolicy: "cache-first",
+      initialFetchPolicy: "network-only",
+      nextFetchPolicy: "cache-only",
+    });
     this.datacenter$ = this.assetQueryRef.valueChanges.pipe(
       map((response) => response.data.datacenter)
     )
   }
 
-  addAsset($event: any, rack: Rack) {
-    this.createAsset.mutate({
+  async addAsset($event: any, rack: Rack) {
+    await firstValueFrom(this.createAsset.mutate({
       name: $event.target.value,
       parentId: rack.id,
-    }).subscribe(async () => {
-      await this.assetQueryRef.refetch();
-    })
+    }, {} ));
+    $event.target.value = '';
+  }
+
+  public trackById(index: number, element: { id: string }) {
+    return element.id;
   }
 }
